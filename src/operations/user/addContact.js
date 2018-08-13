@@ -32,7 +32,7 @@ function addContact(userPhone, contactPhone, cb) {
             // save the edited user
             user.save(function (err) {
               if (err) throw err;
-              cb({ type: "success", msg: "Added : " + contact.details.name, details: contact });
+              cb({ type: "success", msg: "Added new Contact: " + contact.details.name, details: contact });
             });
           }
           else
