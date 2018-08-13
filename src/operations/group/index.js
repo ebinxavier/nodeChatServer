@@ -1,5 +1,6 @@
 module.exports = {
     create: require("./create"),
+    delete: require("./delete"),
     addMembers: require("./addMembers"),
-    delete: require("./delete")
+    removeMembers: require("./removeMembers"),
 }
