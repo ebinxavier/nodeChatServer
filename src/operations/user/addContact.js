@@ -26,7 +26,7 @@ function addContact(userPhone, contactPhone, cb) {
         else {
 
           // Checking duplicate contact
-          if (user.contacts.indexOf(contact.id) == -1) {
+          if (user.contacts.indexOf(contact.id) == -1 && user.id!=contact.id) {
             user.contacts.push(contact.id);
 
             // save the edited user
@@ -36,7 +36,7 @@ function addContact(userPhone, contactPhone, cb) {
             });
           }
           else
-            cb({ type: "error", reason: "Contact already exist", details: null });
+            cb({ type: "error", reason: user.id==contact.id?"Can't add himself to contacts.":"Contact already exist.", details: null });
         }
 
 
