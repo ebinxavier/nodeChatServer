@@ -1,10 +1,11 @@
 let Group = require('../../model/Group')
 let User = require('../../model/User')
 
-module.exports = (groupId, members) => {
+module.exports = (admin,groupId, members) => {
     var details = {};
     return new Promise((resolve, reject) => {
         Group.findOne({ _id: groupId }).then(group => {
+            if(group.admins.indexOf(admin)!=-1)
             Promise.all(members.map(member => User.findOne({ _id: member })))
                 .then(allUsers => {
 
@@ -37,6 +38,9 @@ module.exports = (groupId, members) => {
                     console.log(err);
                     reject({ type: "error", reason: "Network/DB", details: err })
                 })
+                else 
+                reject({ type: "error", reason: "Permision denied.", details: "Member is not an administator." })
+
         }).catch(err => {
             console.log(err);
             reject({ type: "error", reason: "Network/DB", details: err })
