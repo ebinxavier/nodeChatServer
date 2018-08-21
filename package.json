@@ -5,6 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "mongoose": "^5.2.7",
+    "socket.io": "^2.1.1",
     "validator": "^10.5.0"
   },
   "devDependencies": {},

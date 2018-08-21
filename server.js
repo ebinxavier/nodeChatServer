@@ -1,3 +1,46 @@
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+server.listen(8081);
+
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/src/public/index.html');
+});
+
+
+io.on('connection', function (socket) {
+
+  var room = socket.handshake['query']['r_var'].split(',')[0];
+  var userId = socket.handshake['query']['r_var'].split(',')[1];
+
+  socket.join(room);
+  console.log("User: "+userId+" joined theGroup:"+room);
+  socket.on('disconnect', function () {
+      socket.leave(room)
+      console.log('user disconnected');
+  });
+
+  socket.on('chat message', function (msg) {
+      // io.to(room).emit('chat message', msg);
+      socket.broadcast.to( room ).emit('chat message',userId+': '+msg);
+  });
+
+  socket.on('msgAck',function(data){
+      console.log("acknowledgment recieved from: "+data.user);
+  })
+
+}); 
+
+
+
+
+
+
+
+
+
+
 let database = require('./src/database')
 database.connect();
 
@@ -24,21 +67,23 @@ let User = require('./src/model/User')
 //     console.log(err)
 //   })
 
-group.addMembers("5b716f307e0fee2ac2bf106c","5b716f563594732afb7fc0c0", ["5b716f307e0fee2ac2bf106e","5b716f307e0fee2ac2bf106c","5b716f307e0fee2ac2bf106d"]) // (admin,groupId,[members...])
-  .then(res => {
-    console.log(res)
-  })
-  .catch(err => {
-    console.log(err)
-  })
-
-// group.removeMembers("5b716f307e0fee2ac2bf106e","5b716f563594732afb7fc0c0", ["5b716f307e0fee2ac2bf106e","5b716f307e0fee2ac2bf106c"]) // (admin,groupId,[members...])
+// group.addMembers("5b716f307e0fee2ac2bf106d","5b716f563594732afb7fc0c0",
+//  ["5b716f307e0fee2ac2bf106e","5b716f307e0fee2ac2bf106c","5b716f307e0fee2ac2bf106d"]) // (admin,groupId,[members...])
 //   .then(res => {
 //     console.log(res)
 //   })
 //   .catch(err => {
 //     console.log(err)
 //   })
+
+group.removeMembers("5b716f307e0fee2ac2bf106e","5b716f563594732afb7fc0c0", 
+["5b716f307e0fee2ac2bf106d"]) // (admin,groupId,[members...])
+  .then(res => {
+    console.log(res)
+  })
+  .catch(err => {
+    console.log(err)
+  })
 
 
 

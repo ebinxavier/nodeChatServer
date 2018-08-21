@@ -1,0 +1,56 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+
+    var socket_connect = function (room, userId) {
+        return io('localhost:8081', {
+            query: 'r_var=' + room+','+ userId
+        });
+    }
+
+    var random_room = Math.floor((Math.random() * 2) + 1);
+    var socket;
+
+
+    function initGroup(groupId, userId, callBack) {
+        socket = socket_connect(groupId, userId);
+        // socket.emit('chat message', "group-" + groupId);
+        socket.on('chat message', callBack)
+    }
+    function connect() {
+        initGroup(document.getElementById("groupId").value, document.getElementById("userId").value, (msg) => {
+            console.log(msg);
+            document.getElementById("chats").innerText += ("\n" + msg);
+            socket.emit('msgAck',{group:document.getElementById("groupId").value,user:document.getElementById("userId").value,msgId:msg})
+        })
+    }
+    function send(){
+        document.getElementById("chats").innerText += ("\n\tMe:" + document.getElementById("msg").value);
+        socket.emit('chat message', document.getElementById("msg").value);
+    }
+</script>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <!-- <script src="main.js"></script> -->
+</head>
+
+<body>
+    <input type="text" placeholder="User Id" id="userId">
+    <input type="text" placeholder="Group Id" id="groupId">
+    <button onclick="connect()">connect</button>
+    <input type="text" placeholder="Message" id="msg">
+    <button onclick="send()">send</button>
+    <div id="chats">
+
+    </div>
+</body>
+
+</html>
