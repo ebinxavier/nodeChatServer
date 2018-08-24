@@ -4,10 +4,50 @@ let express = require('express');
 let bodyParser = require('body-parser');
 
 let app = express();
-let port = process.env.PORT || 3030;
+let port = process.env.PORT || 8081;
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(express.static('uploads'))
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+server.listen(port);
+
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/src/public/index.html');
+});
+
+
+io.on('connection', function (socket) {
+
+  var room = socket.handshake['query']['r_var'].split(',')[0];
+  var userId = socket.handshake['query']['r_var'].split(',')[1];
+
+  socket.join(room);
+  console.log("User: "+userId+" joined theGroup:"+room);
+  socket.on('disconnect', function () {
+      socket.leave(room)
+      console.log('user disconnected');
+  });
+
+  socket.on('chat message', function (msg) {
+      // io.to(room).emit('chat message', msg);
+      socket.broadcast.to( room ).emit('chat message',userId+': '+msg);
+  });
+
+  socket.on('msgAck',function(data){
+      console.log("acknowledgment recieved from: "+data.user);
+  })
+
+}); 
+
+
+
+
+
+
+
+
 
 
 let database = require('./src/database')
@@ -28,9 +68,9 @@ database.connect();
 
 
 
-app.listen(port,(req,res)=>{
-  console.log(`listening to ${port}...`);
-})
+// app.listen(port,(req,res)=>{
+//   console.log(`listening to ${port}...`);
+// })
 app.get('/',(req,res)=>{
   res.sendFile(__dirname + '/index.html');
 })
@@ -115,7 +155,7 @@ var url = "https://avatars0.githubusercontent.com/u/2918581?v=4" //thumb
 // })
 
 
-// group.create("5b712a536dee0f40f5fe1971", "wp 007")  // (admin,groupName)
+// group.create("5b716f307e0fee2ac2bf106c", "wp 007")  // (admin,groupName)
 //   .then(res => {
 //     console.log(res);
 //   }).
@@ -123,7 +163,8 @@ var url = "https://avatars0.githubusercontent.com/u/2918581?v=4" //thumb
 //     console.log(err)
 //   })
 
-// group.addMembers("5b7131cb71de4f48e47beea0", ["5b712a536dee0f40f5fe1972"]) // (groupId,[members...])
+// group.addMembers("5b716f307e0fee2ac2bf106d","5b716f563594732afb7fc0c0",
+//  ["5b716f307e0fee2ac2bf106e","5b716f307e0fee2ac2bf106c","5b716f307e0fee2ac2bf106d"]) // (admin,groupId,[members...])
 //   .then(res => {
 //     console.log(res)
 //   })
@@ -152,7 +193,7 @@ var url = "https://avatars0.githubusercontent.com/u/2918581?v=4" //thumb
 //     // prints "The author is Ian Fleming"
 //   });
 
-message.create("5b72f780a1b74d0cafb4026b", ["5b72f780a1b74d0cafb4027a","5b72f780a1b74d0cafb4027c"], "toUser", /*{base64:"Hii...!"}*/ "Poda...")
+message.create("5b72f780a1b74d0cafb4026b", ["5b72f780a1b74d0cafb4026a","5b72f780a1b74d0cafb4026b"], "toUser", /*{base64:"Hii...!"}*/ "Poda...")
 // message.create("5b72f780a1b74d0cafb4026b", ["5b72fbffb6be040f1481cb25"], "toGroup", {"Hii Group...!"} )
   
 
